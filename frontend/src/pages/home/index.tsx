@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Api from "@/services/api";
 import { services } from "@/lib/data";
 import Footer from "@/components/footer";
@@ -9,60 +10,66 @@ import DataEntitasTab from "./_components/data-entitas";
 import DataPungutanTab from "./_components/data-pungutan";
 
 export default function Home() {
-  const [activeService, setActiveService] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab");
+
+  const [activeTab, setActiveTab] = useState(tab || "data-utama");
   const [dataUtama, setDataUtama] = useState([]);
   const [dataEntitas, setDataEntitas] = useState([]);
   const [dataPungutan, setDataPungutan] = useState([]);
 
-  const handleIconClick = (id: number) => {
-    setActiveService(id);
-  };
-
   const fetchDataUtama = async () => {
-    //fetch data from API with Axios
     try {
       const response = await Api.get(
         "/dataUtama?nomor_pengajuan=20120B388FAE20240402000001"
       );
-      //assign response data to state "users"
       setDataUtama(response.data.data);
     } catch (error) {
-      console.error("There was an error fetching the users!", error);
+      console.error("There was an error fetching the data utama!", error);
     }
   };
 
   const fetchDataEntitas = async () => {
-    //fetch data from API with Axios
     try {
       const response = await Api.get(
         "/dataEntitas?id_aju=04eb6a72-bb63-5aed-5e92-f58a3bfd5da2"
       );
-      //assign response data to state "users"
       setDataEntitas(response.data.data);
     } catch (error) {
-      console.error("There was an error fetching the users!", error);
+      console.error("There was an error fetching the data entitas!", error);
     }
   };
 
   const fetchDataPungutan = async () => {
-    //fetch data from API with Axios
     try {
       const response = await Api.get(
         "/dataPungutan?id_aju=04eb6a72-bb63-5aed-5e92-f58a3bfd5da2"
       );
-      //assign response data to state "users"
       setDataPungutan(response.data.data);
     } catch (error) {
-      console.error("There was an error fetching the users!", error);
+      console.error("There was an error fetching the data pungutan!", error);
     }
   };
 
-  //run hook useEffect
+  // Fetch data only for the active tab
   useEffect(() => {
-    fetchDataUtama();
-    fetchDataEntitas();
-    fetchDataPungutan();
-  }, []);
+    if (activeTab === "data-utama") {
+      fetchDataUtama();
+    } else if (activeTab === "data-entitas") {
+      fetchDataEntitas();
+    } else if (activeTab === "data-pungutan") {
+      fetchDataPungutan();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    setActiveTab(tab || "data-utama");
+  }, [tab]);
+
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    setSearchParams({ tab: value }, { replace: true });
+  };
 
   return (
     <>
@@ -79,7 +86,7 @@ export default function Home() {
                 >
                   <div
                     className={`${
-                      activeService === service.id
+                      activeTab === service.id
                         ? "bg-indigo-200/50"
                         : "bg-gray-200/50 text-gray-400/60"
                     } rounded-full py-1 inline-block`}
@@ -88,7 +95,7 @@ export default function Home() {
                   </div>
                   <p
                     className={`capitalize ${
-                      activeService === service.id
+                      activeTab === service.id
                         ? "text-red-400/80"
                         : "text-gray-400/60"
                     }`}
@@ -105,7 +112,7 @@ export default function Home() {
                 Jenis API : 02
               </p>
             </div>
-            <Tabs defaultValue="data-utama">
+            <Tabs value={activeTab} onValueChange={handleTabChange}>
               <TabsList>
                 <TabsTrigger value="data-utama">Data Utama</TabsTrigger>
                 <TabsTrigger value="data-entitas">Data Entitas</TabsTrigger>
