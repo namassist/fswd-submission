@@ -66,7 +66,7 @@ export default function Home() {
     setActiveTab(tab || "data-utama");
   }, [tab]);
 
-  const handleTabChange = (value) => {
+  const handleTabChange = (value: string) => {
     setActiveTab(value);
     setSearchParams({ tab: value }, { replace: true });
   };
@@ -82,23 +82,11 @@ export default function Home() {
                 <div
                   className="flex flex-col items-center space-y-1 cursor-pointer"
                   key={service?.id}
-                  onClick={() => handleIconClick(service?.id)}
                 >
-                  <div
-                    className={`${
-                      activeTab === service.id
-                        ? "bg-indigo-200/50"
-                        : "bg-gray-200/50 text-gray-400/60"
-                    } rounded-full py-1 inline-block`}
-                  >
-                    {service?.icon}
-                  </div>
+                  <div className={`bg-indigo-200/50`}>{service?.icon}</div>
                   <p
-                    className={`capitalize ${
-                      activeTab === service.id
-                        ? "text-red-400/80"
-                        : "text-gray-400/60"
-                    }`}
+                    className={`capitalize text-gray-400/60
+                    `}
                   >
                     {service?.name}
                   </p>
